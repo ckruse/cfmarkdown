@@ -1,0 +1,28 @@
+{
+  "name": "cfmarkdown",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --require @babel/register",
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development"
+  },
+  "author": "Christian Kruse <christian@kruse.cool>",
+  "license": "MIT",
+  "dependencies": {
+    "markdown-it": "^8.4.2",
+    "markdown-it-footnote": "^3.0.1",
+    "markdown-it-katex": "^2.0.3",
+    "shell-quote": "^1.6.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "babel-loader": "^8.0.2",
+    "mocha": "^5.2.0",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
+  }
+}
