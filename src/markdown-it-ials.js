@@ -1,186 +1,137 @@
-import { parse as shellParser } from "shell-quote";
+import { scan, trimStart, trim, addClass } from "./utils";
 
-const globalRe = /(?:\s*|\n*){:([^}]+)}/g;
-const fullMtRe = /^(?:\s*|\n*)({:([^}]+)}\n?)+$/g;
-const singleRe = /(?:\s*|\n*){:([^}]+)}/;
+const IAL_RX = /(?:^|\s+)(?:(\.\w[\w-]*)|(#\w[\w-]*)|(@\w+)|(\w[\w-]+)=((\w[\w-]*)|((["'])[^\8]+\8)))/g;
 
-const arrayUniq = array => {
-  return array.filter((val, index, ary) => {
-    return ary.indexOf(val) === index;
-  });
-};
+const parseIal = str => {
+  const matchData = scan(str, IAL_RX);
 
-const cleanupChildrenAndRemoveCurly = token => {
-  let children = [],
-    childFound;
-  token.content.replace(singleRe, "");
+  const opts = matchData.reduce((opts, elem) => {
+    let [klass, id, lang, key, value] = elem;
 
-  token.children.forEach((child, i) => {
-    if (child.type == "text" && child.content.match(singleRe)) {
-      childFound = true;
-      child.content = child.content.replace(singleRe, "");
-      if (child.content != "") {
-        children.push(child);
-      } else {
-        let previousChild = children[children.length - 1];
-        if (previousChild && previousChild.type == "softbreak") {
-          children.pop();
-        }
-      }
-    } else if (!(childFound && child.type == "softbreak")) {
-      children.push(child);
-    }
-  });
-
-  token.children = children;
-};
-
-const addClass = (attr, target) => {
-  let classes;
-
-  target.attrs.forEach(ary => {
-    if (ary[0] == "class") {
-      classes = ary;
-    }
-  });
-
-  if (!classes) {
-    classes = ["class", ""];
-    target.attrs.push(classes);
-  }
-
-  classes[1] = classes[1].split(/\s+/);
-  classes[1].push(attr.replace(/^\s*\./, ""));
-  classes[1] = arrayUniq(classes[1])
-    .join(" ")
-    .trim();
-};
-
-const addID = (attr, target) => {
-  target.attrs.push(["id", attr.replace(/^\s*#/, "")]);
-};
-
-const addAttr = (attr, target) => {
-  attr = attr.split(/\s*=\s*/);
-  target.attrs.push([attr[0], attr.slice(1, attr.length).join("=")]);
-};
-
-const addLang = (attr, target) => {
-  target.attrs.push(["lang", attr.replace(/^\s*@/, "")]);
-};
-
-const shouldIgnoreTokenForBlockRe = (target, prev) => {
-  return (
-    target.type == "inline" ||
-    target.type.match(/_close$/) ||
-    (target.type.match(/_open$/) && prev && prev.content.match(fullMtRe))
-  );
-};
-
-const specials = [
-  "/",
-  ".",
-  "*",
-  "+",
-  "?",
-  "|",
-  "(",
-  ")",
-  "[",
-  "]",
-  "{",
-  "}",
-  "\\"
-];
-const sRE = new RegExp("(\\" + specials.join("|\\") + ")", "g");
-const regexEscape = text => text.replace(sRE, "\\$1");
-
-const findTarget = (state, token, tokens, index, attrs) => {
-  if (token.content.match(fullMtRe)) {
-    let current = tokens.length;
-    let target = tokens[current];
-
-    do {
-      current -= 1;
-      target = tokens[current];
-    } while (shouldIgnoreTokenForBlockRe(target, tokens[current + 1]));
-
-    return target;
-  } else if (token.children[0].type == "text") {
-    return state.tokens[index - 1];
-  } else {
-    //target = token.children[0];
-    //console.log("else", target);
-    const rx = new RegExp(regexEscape(attrs));
-    for (let i = 0; i < token.children.length; ++i) {
-      if (rx.test(token.children[i].content)) {
-        if (token.children[i - 1].type.match(/_close$/)) {
-          for (; i >= 0; --i) {
-            if (token.children[i].type.match(/_open$/)) {
-              return token.children[i];
-            }
-          }
-        }
-      }
-    }
-
-    return token.children[0];
-  }
-};
-
-const parseIals = state => {
-  let skipNext = false,
-    tokens = [];
-
-  state.tokens.forEach((token, i) => {
-    if (!skipNext) {
-      tokens.push(token);
+    if (klass) {
+      opts.class = trimStart((opts.class || "") + ` ${klass.substr(1)}`);
+    } else if (id) {
+      opts.id = id.substr(1);
+    } else if (lang) {
+      opts.lang = lang.substr(1);
     } else {
-      skipNext = false;
+      opts[key] = value.replace(/^(["'])|\1$/, "");
     }
 
-    if (token.block && token.type == "inline") {
-      let attrMatches = token.content.match(globalRe);
-      if (attrMatches && attrMatches.length > 0) {
-        attrMatches.forEach(attrs => {
-          const target = findTarget(state, token, tokens, i, attrs);
-          attrs = shellParser(attrs.match(singleRe)[1].replace(/#/, "\\#"));
+    return opts;
+  }, {});
 
-          if (!target.attrs) {
-            target.attrs = [];
-          }
-
-          attrs.forEach(attr => {
-            if (attr.match(/^\s*\./)) {
-              addClass(attr, target);
-            } else if (attr.match(/^\s*#/)) {
-              addID(attr, target);
-            } else if (attr.match(/^\s*@/)) {
-              addLang(attr, target);
-            } else {
-              addAttr(attr, target);
-            }
-          });
-        });
-
-        cleanupChildrenAndRemoveCurly(token);
-
-        if (token.content.match(fullMtRe)) {
-          tokens.pop();
-          if (state.tokens[i - 1].type == "paragraph_open") {
-            tokens.pop();
-            if (state.tokens[i + 1].type == "paragraph_close") {
-              skipNext = true;
-            }
-          }
-        }
-      }
-    }
-  });
-
-  state.tokens = tokens;
+  return opts;
 };
 
-export default markdown => {
-  markdown.core.ruler.before("replacements", "kramdown_attrs", parseIals);
+const mergeAttributes = (from, to) => {
+  Object.keys(from).forEach(k => {
+    if (k == "class") {
+      addClass(from.class, to);
+    } else {
+      to.push([k, from[k]]);
+    }
+  });
+};
+
+const parseInlineIal = (state, silent) => {
+  const remainder = state.src.slice(state.pos);
+  let matchData = remainder.match(/^\{:([^}]+)\}/);
+
+  if (!matchData) {
+    return false;
+  }
+
+  const ial = trim(matchData[1]);
+
+  if (!ial) {
+    return false;
+  }
+
+  state.pos += matchData[0].length;
+
+  /* inline IALs are ignored when there is no preceding inline element */
+  if (!state.tokens.length) {
+    return true;
+  }
+
+  const attributes = parseIal(ial);
+
+  const token = state.push("inline_ial", null, 0);
+  token.markup = matchData[0];
+  token.attrs = attributes;
+  token.hidden = true;
+
+  return true;
+};
+
+const parseBlockIal = (state, startLine, endLine, silent) => {
+  const pos = state.bMarks[startLine] + state.tShift[startLine];
+  const max = state.eMarks[startLine];
+  const str = state.src.slice(pos, max);
+  const matchData = str.match(/^\s*\{:([^\}]+)\}\s*$/m);
+
+  if (!matchData) {
+    return false;
+  }
+
+  state.line += 1;
+
+  const attrs = parseIal(matchData[1]);
+  const target = findTarget(state.tokens, state.tokens.length - 1);
+
+  if (!target) {
+    return true;
+  }
+
+  if (!target.attrs) {
+    target.attrs = [];
+  }
+
+  mergeAttributes(attrs, target.attrs);
+
+  return true;
+};
+
+const findTarget = (tokens, idx) => {
+  let closes = 0;
+
+  for (var i = idx - 1; i >= 0; --i) {
+    if (tokens[i].type.match(/_close$/)) {
+      closes++;
+    } else if (tokens[i].type.match(/_open$/)) {
+      closes--;
+    }
+
+    if (closes <= 0 && tokens[i].type != "text" && tokens[i].type != "inline") {
+      return tokens[i];
+    }
+  }
+
+  return null;
+};
+
+const postProcess = state => {
+  for (let i = 0; i < state.tokens.length; ++i) {
+    if (state.tokens[i].type == "inline_ial") {
+      const target = findTarget(state.tokens, i);
+
+      if (!target) {
+        continue;
+      }
+
+      if (!target.attrs) {
+        target.attrs = [];
+      }
+
+      mergeAttributes(state.tokens[i].attrs, target.attrs);
+    }
+  }
+};
+
+export default (md, options) => {
+  md.inline.ruler.push("inline_ial", parseInlineIal);
+  md.inline.ruler2.push("inline_ial", postProcess);
+
+  md.block.ruler.before("blockquote", "block_ial", parseBlockIal);
 };

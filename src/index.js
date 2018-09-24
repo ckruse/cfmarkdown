@@ -1,12 +1,21 @@
 import MarkdownIt from "markdown-it";
-import MarkdownItSignature from "./markdown-it-signature";
 import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
+
+import Prism from "prismjs";
+var loadLanguages = require("prismjs/components/");
+
+import MarkdownItSignature from "./markdown-it-signature";
+import MarkdownItIals from "./markdown-it-ials";
+import MarkdownItCfEnhancements from "./markdown-it-cf-enhancements";
 
 const defaultOptions = {
   html: false,
   headerStartIndex: 1,
-  quotes: "“”‘’"
+  quotes: "“”‘’",
+  languageAliases: {
+    html: "markup"
+  }
 };
 
 export default (options = {}) => {
@@ -15,11 +24,26 @@ export default (options = {}) => {
     quotes: options.quotes,
     html: options.html,
     typographer: false,
-    linkify: false
+    linkify: false,
+    highlight: function(str, lang) {
+      lang = lang.toLowerCase().replace(/,$/, "");
+
+      if (lang) {
+        loadLanguages([options.languageAliases[lang] || lang]);
+
+        if (Prism.languages[lang]) {
+          return Prism.highlight(str, Prism.languages[lang], lang);
+        }
+      }
+
+      return str;
+    }
   })
     .use(MarkdownItFootnote)
     .use(MarkdownItKatex)
-    .use(MarkdownItSignature);
+    .use(MarkdownItSignature)
+    .use(MarkdownItIals)
+    .use(MarkdownItCfEnhancements);
 
   if (!options.html) {
     md.disable("entity");

@@ -1,22 +1,26 @@
-export default function(md, options) {
-  var signature_block = function(state, start, end, silent) {
-    var pos = state.bMarks[start] + state.tShift[start];
-    var remainder = state.src.slice(pos);
+export default (md, options) => {
+  const signatureBlock = (state, start, end, silent) => {
+    const pos = state.bMarks[start] + state.tShift[start];
+    const remainder = state.src.slice(pos);
 
     if (!/^-- \n/.test(remainder) || remainder.indexOf("-- \n", 5) != -1) {
       return false;
     }
 
-    var oldParent = state.parentType;
+    const oldParent = state.parentType;
     state.parentType = "container";
 
-    var token = state.push("signature_block", "div", 1);
+    let token = state.push("signature_block", "div", 1);
     token.block = true;
     token.map = [start, state.line];
     token.markup = "-- \n";
     state.line = end;
 
-    state.md.block.tokenize(state, start + 1, end, true);
+    //state.md.block.tokenize(state, start + 1, end, true);
+    token = state.push("inline", "", 0);
+    token.content = remainder.replace(/^-- \n/, "");
+    token.map = [start + 1, end];
+    token.children = [];
 
     token = state.push("signature_block_close", "div", -1);
     token.block = true;
@@ -27,10 +31,10 @@ export default function(md, options) {
     return true;
   };
 
-  var blockRenderer = function(tokens, idx) {
-    return '<div class="signature">\n';
+  const blockRenderer = (tokens, idx) => {
+    return '<div class="signature">-- <br>\n';
   };
 
-  md.block.ruler.after("blockquote", "signature_block", signature_block);
+  md.block.ruler.after("blockquote", "signature_block", signatureBlock);
   md.renderer.rules.signature_block = blockRenderer;
-}
+};

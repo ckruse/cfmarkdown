@@ -8,16 +8,22 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode development"
   },
+  "bin": {
+    "cfmarkdown2html": "bin/cfmarkdown2html.js"
+  },
   "author": "Christian Kruse <christian@kruse.cool>",
   "license": "MIT",
   "dependencies": {
     "markdown-it": "^8.4.2",
     "markdown-it-footnote": "^3.0.1",
     "markdown-it-katex": "^2.0.3",
+    "prismjs": "^1.15.0",
+    "readline": "^1.3.0",
     "shell-quote": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.1.0",
+    "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/register": "^7.0.0",
     "babel-loader": "^8.0.2",
