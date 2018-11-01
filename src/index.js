@@ -9,13 +9,17 @@ import MarkdownItSignature from "./markdown-it-signature";
 import MarkdownItIals from "./markdown-it-ials";
 import MarkdownItCfEnhancements from "./markdown-it-cf-enhancements";
 
+import PlaintTextRules from "./plain_text_rules";
+import PlainTextRenderer from "./plain_text_rules";
+
 const defaultOptions = {
   html: false,
   headerStartIndex: 1,
   quotes: "“”‘’",
   languageAliases: {
     html: "markup"
-  }
+  },
+  target: "html"
 };
 
 export default (options = {}) => {
@@ -49,27 +53,31 @@ export default (options = {}) => {
     md.disable("entity");
   }
 
-  md.renderer.rules.heading_open = (tokens, idx, _, __, slf) => {
-    const tok = tokens[idx];
-    let level = tok.markup.length + options.headerStartIndex - 1;
+  if (options.target == "html") {
+    md.renderer.rules.heading_open = (tokens, idx, _, __, slf) => {
+      const tok = tokens[idx];
+      let level = tok.markup.length + options.headerStartIndex - 1;
 
-    if (level > 6) {
-      level = 6;
-    }
+      if (level > 6) {
+        level = 6;
+      }
 
-    return `<h${level}${slf.renderAttrs(tok)}>`;
-  };
+      return `<h${level}${slf.renderAttrs(tok)}>`;
+    };
 
-  md.renderer.rules.heading_close = (tokens, idx) => {
-    const tok = tokens[idx];
-    let level = tok.markup.length + options.headerStartIndex - 1;
+    md.renderer.rules.heading_close = (tokens, idx) => {
+      const tok = tokens[idx];
+      let level = tok.markup.length + options.headerStartIndex - 1;
 
-    if (level > 6) {
-      level = 6;
-    }
+      if (level > 6) {
+        level = 6;
+      }
 
-    return `</h${level}>`;
-  };
+      return `</h${level}>`;
+    };
+  } else if (options.target == "plain") {
+    md.renderer = new PlainTextRenderer();
+  }
 
   return md;
 };

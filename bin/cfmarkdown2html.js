@@ -12,6 +12,12 @@ const md = CfMarkdown({
   headerStartIndex: 3
 });
 
+const mdPlain = CfMarkdown({
+  quotes: "„“‚‘",
+  headerStartIndex: 3,
+  target: "plain"
+});
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -54,7 +60,8 @@ rl.on("line", line => {
   //try {
   let json = JSON.parse(line);
   let markdown = manualFixes(json.markdown);
-  let result = md.render(markdown);
+  let result =
+    json.target == "plain" ? mdPlain.render(markdown) : md.render(markdown);
 
   process.stdout.write(
     JSON.stringify({
