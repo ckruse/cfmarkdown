@@ -23,6 +23,15 @@ const defaultOptions = {
   target: "html"
 };
 
+function unaliasLang(lang) {
+  switch (lang) {
+    case "c++":
+      return "cpp";
+    default:
+      return lang;
+  }
+}
+
 export default (options = {}) => {
   options = Object.assign({}, defaultOptions, options);
   let md = MarkdownIt({
@@ -32,6 +41,7 @@ export default (options = {}) => {
     linkify: false,
     highlight: function(str, lang) {
       lang = lang.toLowerCase().replace(/,$/, "");
+      lang = unaliasLang(lang);
 
       if (lang) {
         loadLanguages([options.languageAliases[lang] || lang]);
