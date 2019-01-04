@@ -17,10 +17,19 @@ describe("CfMarkdown", () => {
 
   it("renders plain text", () => {
     const md = CfMarkown({ target: "plain" });
-    console.log(
+    assert.equal(
       md.render(
         '# lala\n\n- ba\n- bu <https://wwwtech.de/>\n\nbar ![foo alt](https://wwwtech.de/img "lulu")'
-      )
+      ),
+      "lala\n\nba\nbu https://wwwtech.de/\n\nbar foo alt lulu\n"
+    );
+  });
+
+  it("renders a code with language", () => {
+    const md = CfMarkown();
+    assert.equal(
+      md.render("~~~ css\n#foo { color: red; }\n~~~"),
+      '<pre><code class="block language-css"><span class="token selector">#foo</span> <span class="token punctuation">{</span> <span class="token property">color</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span> <span class="token punctuation">}</span>\n</code></pre>\n'
     );
   });
 });

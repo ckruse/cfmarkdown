@@ -3,7 +3,7 @@ import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
 
 import Prism from "prismjs";
-import loadLanguages from "prismjs/components";
+import loadLanguages from "prismjs/components/index";
 
 import MarkdownItSignature from "./markdown-it-signature";
 import MarkdownItIals from "./markdown-it-ials";
