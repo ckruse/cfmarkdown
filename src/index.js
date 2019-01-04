@@ -11,6 +11,8 @@ import MarkdownItCfEnhancements from "./markdown-it-cf-enhancements";
 
 import PlainTextRenderer from "./plain_text_rules";
 
+import { escapeHtml } from "markdown-it/lib/common/utils";
+
 const defaultOptions = {
   html: false,
   headerStartIndex: 1,
@@ -39,7 +41,7 @@ export default (options = {}) => {
         }
       }
 
-      return str;
+      return escapeHtml(str);
     }
   })
     .use(MarkdownItFootnote)

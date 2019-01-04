@@ -32,4 +32,12 @@ describe("CfMarkdown", () => {
       '<pre><code class="block language-css"><span class="token selector">#foo</span> <span class="token punctuation">{</span> <span class="token property">color</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span> <span class="token punctuation">}</span>\n</code></pre>\n'
     );
   });
+
+  it("renders a code with language", () => {
+    const md = CfMarkown();
+    assert.equal(
+      md.render("~~~\n#include <stdio>\n~~~"),
+      '<pre><code class="block">#include &lt;stdio&gt;\n</code></pre>\n'
+    );
+  });
 });
