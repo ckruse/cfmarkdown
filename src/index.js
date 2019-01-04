@@ -3,13 +3,12 @@ import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
 
 import Prism from "prismjs";
-var loadLanguages = require("prismjs/components/");
+import loadLanguages from "prismjs/components";
 
 import MarkdownItSignature from "./markdown-it-signature";
 import MarkdownItIals from "./markdown-it-ials";
 import MarkdownItCfEnhancements from "./markdown-it-cf-enhancements";
 
-import PlaintTextRules from "./plain_text_rules";
 import PlainTextRenderer from "./plain_text_rules";
 
 const defaultOptions = {
