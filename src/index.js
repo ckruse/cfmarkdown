@@ -5,8 +5,8 @@ import MarkdownItKatex from "markdown-it-katex";
 import Prism from "prismjs";
 let loadLanguages;
 
-if (typeof window != "undefined") {
-  loadLanguages = require("prismjs/components");
+if (typeof window == "undefined") {
+  loadLanguages = require("prismjs/components/");
 }
 
 import MarkdownItSignature from "./markdown-it-signature";
@@ -40,7 +40,7 @@ export default (options = {}) => {
 
       if (lang) {
         lang = options.languageAliases[lang] || lang;
-        if (typeof window != "undefined") {
+        if (typeof window == "undefined") {
           loadLanguages([lang]);
         }
 
