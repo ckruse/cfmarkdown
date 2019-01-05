@@ -3,7 +3,11 @@ import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
 
 import Prism from "prismjs";
-import loadLanguages from "prismjs/components/index";
+let loadLanguages;
+
+if (typeof window != "undefined") {
+  loadLanguages = require("prismjs/components");
+}
 
 import MarkdownItSignature from "./markdown-it-signature";
 import MarkdownItIals from "./markdown-it-ials";
@@ -36,7 +40,9 @@ export default (options = {}) => {
 
       if (lang) {
         lang = options.languageAliases[lang] || lang;
-        loadLanguages([lang]);
+        if (typeof window != "undefined") {
+          loadLanguages([lang]);
+        }
 
         if (Prism.languages[lang]) {
           return Prism.highlight(str, Prism.languages[lang], lang);

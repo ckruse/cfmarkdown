@@ -33,7 +33,7 @@ describe("CfMarkdown", () => {
     );
   });
 
-  it("renders a code with language", () => {
+  it("escapes entities in unhighlighted code", () => {
     const md = CfMarkown();
     assert.equal(
       md.render("~~~\n#include <stdio>\n~~~"),
