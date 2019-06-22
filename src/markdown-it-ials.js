@@ -124,6 +124,14 @@ const postProcess = state => {
         target.attrs = [];
       }
 
+      if (!(target.attrs instanceof Array)) {
+        const newAttrs = [];
+        Object.keys(target.attrs).forEach(k => {
+          newAttrs.push([k, target.attrs[k]]);
+        });
+        target.attrs = newAttrs;
+      }
+
       mergeAttributes(state.tokens[i].attrs, target.attrs);
     }
   }
