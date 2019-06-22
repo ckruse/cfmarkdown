@@ -24,7 +24,8 @@ const defaultOptions = {
   quotes: "“”‘’",
   languageAliases: {
     html: "markup",
-    "c++": "cpp"
+    "c++": "cpp",
+    js: "javascript"
   },
   target: "html"
 };
