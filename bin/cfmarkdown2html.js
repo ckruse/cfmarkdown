@@ -57,24 +57,24 @@ const manualFixes = text => {
 };
 
 rl.on("line", line => {
-  //try {
-  let json = JSON.parse(line);
-  let markdown = manualFixes(json.markdown);
-  let result =
-    json.target == "plain" ? mdPlain.render(markdown) : md.render(markdown);
+  try {
+    let json = JSON.parse(line);
+    let markdown = manualFixes(json.markdown);
+    let result =
+      json.target == "plain" ? mdPlain.render(markdown) : md.render(markdown);
 
-  process.stdout.write(
-    JSON.stringify({
-      status: "ok",
-      html: result
-    }) + "\n"
-  );
-  // } catch (e) {
-  //   process.stdout.write(
-  //     JSON.stringify({
-  //       status: "error",
-  //       message: "Input is no valid JSON"
-  //     })
-  //   );
-  // }
+    process.stdout.write(
+      JSON.stringify({
+        status: "ok",
+        html: result
+      }) + "\n--eof--\n"
+    );
+  } catch (e) {
+    process.stdout.write(
+      JSON.stringify({
+        status: "error",
+        message: "Input is no valid JSON"
+      }) + "\n--eof--\n"
+    );
+  }
 });
