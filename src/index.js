@@ -2,6 +2,7 @@ import MarkdownIt from "markdown-it";
 import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
 import MarkdownItDeflist from "markdown-it-deflist";
+import MarkdownItLinkAttributes from "markdown-it-link-attributes";
 
 import Prism from "prismjs";
 let loadLanguages;
@@ -59,7 +60,19 @@ export default (options = {}) => {
     .use(MarkdownItSignature)
     .use(MarkdownItIals)
     .use(MarkdownItCfEnhancements)
-    .use(MarkdownItDeflist);
+    .use(MarkdownItDeflist)
+    .use(MarkdownItLinkAttributes, [
+      {
+        pattern: /^https:\/\/wiki.selfhtml.org\//,
+        attrs: {}
+      },
+      {
+        pattern: /./,
+        attrs: {
+          rel: "nofollow"
+        }
+      }
+    ]);
 
   if (!options.html) {
     md.disable("entity");
