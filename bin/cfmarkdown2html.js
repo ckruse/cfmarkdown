@@ -59,6 +59,8 @@ const manualFixes = text => {
 rl.on("line", line => {
   try {
     let json = JSON.parse(line);
+    const target = json.target || "markdown";
+    process.title = "cfmarkdown: parsing " + json.id + " to " + target;
     let markdown = manualFixes(json.markdown);
     let result =
       json.target == "plain" ? mdPlain.render(markdown) : md.render(markdown);
@@ -69,6 +71,8 @@ rl.on("line", line => {
         html: result
       }) + "\n--eof--\n"
     );
+
+    process.title = "cfmarkdown: idle";
   } catch (e) {
     process.stdout.write(
       JSON.stringify({
