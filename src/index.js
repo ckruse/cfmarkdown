@@ -33,27 +33,30 @@ const defaultOptions = {
 
 export default (options = {}) => {
   options = Object.assign({}, defaultOptions, options);
+
+  const highlight = function(str, lang) {
+    lang = lang.toLowerCase().replace(/,$/, "");
+
+    if (lang) {
+      lang = options.languageAliases[lang] || lang;
+      if (typeof window == "undefined") {
+        loadLanguages([lang]);
+      }
+
+      if (Prism.languages[lang]) {
+        return Prism.highlight(str, Prism.languages[lang], lang);
+      }
+    }
+
+    return escapeHtml(str);
+  };
+
   let md = MarkdownIt({
     quotes: options.quotes,
     html: options.html,
     typographer: false,
     linkify: false,
-    highlight: function(str, lang) {
-      lang = lang.toLowerCase().replace(/,$/, "");
-
-      if (lang) {
-        lang = options.languageAliases[lang] || lang;
-        if (typeof window == "undefined") {
-          loadLanguages([lang]);
-        }
-
-        if (Prism.languages[lang]) {
-          return Prism.highlight(str, Prism.languages[lang], lang);
-        }
-      }
-
-      return escapeHtml(str);
-    }
+    highlight: highlight
   })
     .use(MarkdownItFootnote)
     .use(MarkdownItKatex)
@@ -99,6 +102,19 @@ export default (options = {}) => {
       }
 
       return `</h${level}>`;
+    };
+
+    md.renderer.rules.code_inline = (tokens, idx, options, env, slf) => {
+      var token = tokens[idx];
+      const klass = token.attrGet("class") || "";
+      const tag = "<code" + slf.renderAttrs(token) + ">";
+
+      if (klass.match(/language-(\w+)/)) {
+        const lang = RegExp.$1;
+        return tag + highlight(tokens[idx].content, lang) + "</code>";
+      } else {
+        return tag + escapeHtml(tokens[idx].content) + "</code>";
+      }
     };
   } else if (options.target == "plain") {
     md.renderer = new PlainTextRenderer();
