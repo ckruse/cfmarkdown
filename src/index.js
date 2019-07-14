@@ -3,6 +3,8 @@ import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
 import MarkdownItDeflist from "markdown-it-deflist";
 
+import { repeatStr } from "./utils";
+
 import Prism from "prismjs";
 let loadLanguages;
 
@@ -33,7 +35,7 @@ const defaultOptions = {
   base: "http://localhost/"
 };
 
-export default (options = {}) => {
+const CfMarkdown = (options = {}) => {
   options = Object.assign({}, defaultOptions, options);
 
   if (options.followWhitelist && options.followWhitelist.length > 0) {
@@ -149,3 +151,37 @@ export default (options = {}) => {
 
   return md;
 };
+
+CfMarkdown.manualFixes = text => {
+  let ncnt = "";
+  let quote_level = 0;
+  let lines = text.split(/\r\n|\n|\r/);
+
+  lines.forEach(l => {
+    let mdata = l.match(/^(> *)+/);
+    let currentQl = ((mdata ? mdata[0] : "").match(/>/) || []).length;
+
+    if (currentQl < quote_level && !/^(?:> *)*\s*$/m.test(l)) {
+      ncnt += repeatStr("> ", currentQl) + "\n";
+    } else if (currentQl > quote_level) {
+      ncnt += repeatStr("> ", quote_level) + "\n";
+    }
+
+    quote_level = currentQl;
+
+    if (l.match(/^(?:> )*~~~\s*(?:\w+)/)) {
+      l = l.replace(
+        /~~~(\s*)(\w+)/g,
+        (_, m1, m2) => "~~~" + m1.toLowerCase() + m2.toLowerCase()
+      );
+    }
+
+    ncnt += l + "\n";
+  });
+
+  ncnt = ncnt.replace(/(?<!\n)\n-- \n/, "\n\n-- \n");
+
+  return ncnt;
+};
+
+export default CfMarkdown;
