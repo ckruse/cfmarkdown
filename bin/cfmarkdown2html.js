@@ -7,11 +7,6 @@ import { repeatStr } from "../src/utils";
 process.stdin.resume();
 process.stdin.setEncoding("utf8");
 
-const md = CfMarkdown({
-  quotes: "„“‚‘",
-  headerStartIndex: 3
-});
-
 const mdPlain = CfMarkdown({
   quotes: "„“‚‘",
   headerStartIndex: 3,
@@ -60,9 +55,15 @@ rl.on("line", line => {
   try {
     let json = JSON.parse(line);
     const target = json.target || "markdown";
+    const md = CfMarkdown({
+      ...(json.config || {}),
+      quotes: "„“‚‘",
+      headerStartIndex: 3
+    });
+
     process.title = "cfmarkdown: parsing " + json.id + " to " + target;
-    let markdown = manualFixes(json.markdown);
-    let result =
+    const markdown = manualFixes(json.markdown);
+    const result =
       json.target == "plain" ? mdPlain.render(markdown) : md.render(markdown);
 
     process.stdout.write(

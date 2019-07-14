@@ -2,7 +2,6 @@ import MarkdownIt from "markdown-it";
 import MarkdownItFootnote from "markdown-it-footnote";
 import MarkdownItKatex from "markdown-it-katex";
 import MarkdownItDeflist from "markdown-it-deflist";
-import MarkdownItLinkAttributes from "markdown-it-link-attributes";
 
 import Prism from "prismjs";
 let loadLanguages;
@@ -28,11 +27,20 @@ const defaultOptions = {
     "c++": "cpp",
     js: "javascript"
   },
-  target: "html"
+  target: "html",
+  linkTarget: null,
+  followWhitelist: null,
+  base: "http://localhost/"
 };
 
 export default (options = {}) => {
   options = Object.assign({}, defaultOptions, options);
+
+  if (options.followWhitelist && options.followWhitelist.length > 0) {
+    options.followWhitelist = "^(?:" + options.followWhitelist.join("|") + ")";
+  } else {
+    options.followWhitelist = null;
+  }
 
   const highlight = function(str, lang) {
     lang = lang.toLowerCase().replace(/,$/, "");
@@ -63,19 +71,7 @@ export default (options = {}) => {
     .use(MarkdownItSignature)
     .use(MarkdownItIals)
     .use(MarkdownItCfEnhancements)
-    .use(MarkdownItDeflist)
-    .use(MarkdownItLinkAttributes, [
-      {
-        pattern: /^https:\/\/wiki.selfhtml.org\//,
-        attrs: {}
-      },
-      {
-        pattern: /./,
-        attrs: {
-          rel: "nofollow"
-        }
-      }
-    ]);
+    .use(MarkdownItDeflist);
 
   if (!options.html) {
     md.disable("entity");
@@ -119,6 +115,37 @@ export default (options = {}) => {
   } else if (options.target == "plain") {
     md.renderer = new PlainTextRenderer();
   }
+
+  const defaultLinkRenderer =
+    md.renderer.rules.link_open ||
+    function(tokens, idx, options, env, self) {
+      return self.renderToken(tokens, idx, options);
+    };
+
+  md.renderer.rules.link_open = (tokens, idx, tokOptions, env, self) => {
+    const token = tokens[idx];
+    const rel = [];
+
+    if (options.linkTarget) {
+      token.attrSet("target", options.linkTarget);
+      rel.push("noopener");
+    }
+
+    if (options.followWhitelist) {
+      const url = new URL(token.attrGet("href"), options.base);
+      if (!url.host.match(options.followWhitelist)) {
+        rel.push("nofollow");
+      }
+    } else {
+      rel.push("nofollow");
+    }
+
+    if (rel.length > 0) {
+      token.attrSet("rel", rel.join(" "));
+    }
+
+    return defaultLinkRenderer(tokens, idx, tokOptions, env, self);
+  };
 
   return md;
 };
