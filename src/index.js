@@ -179,7 +179,7 @@ CfMarkdown.manualFixes = text => {
     ncnt += l + "\n";
   });
 
-  ncnt = ncnt.replace(/(?<!\n)\n-- \n/, "\n\n-- \n");
+  ncnt = ncnt.replace(/(?:^|[^\n])\n-- \n/, "\n\n-- \n");
 
   return ncnt;
 };
