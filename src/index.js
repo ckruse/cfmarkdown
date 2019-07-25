@@ -159,10 +159,12 @@ const CfMarkdown = (options = {}) => {
     }
 
     if (options.followWhitelist) {
-      const url = new URL(token.attrGet("href"), options.base);
-      if (!url.host.match(options.followWhitelist)) {
-        rel.push("nofollow");
-      }
+      try {
+        const url = new URL(token.attrGet("href"), options.base);
+        if (!url.host.match(options.followWhitelist)) {
+          rel.push("nofollow");
+        }
+      } catch (e) {}
     } else {
       rel.push("nofollow");
     }
