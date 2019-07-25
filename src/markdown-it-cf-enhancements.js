@@ -14,6 +14,7 @@ const cfEnhancements = state => {
       if (tok.info) {
         let [lang, goodBad] = tok.info.split(/,\s*/);
         if (goodBad && ["good", "bad"].includes(goodBad)) {
+          tok.info = lang;
           addClass(goodBad, tok.attrs);
         }
       }
