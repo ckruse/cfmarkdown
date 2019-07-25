@@ -61,6 +61,31 @@ const CfMarkdown = (options = {}) => {
     return escapeHtml(str);
   };
 
+  const newlineSpaces = (state, silent) => {
+    var max,
+      pos = state.pos;
+
+    if (state.src.charCodeAt(pos) !== 0x5c /* \n */) {
+      return false;
+    }
+
+    max = state.posMax;
+
+    // '\\' + '\\' + '\n' -> hardbreak
+    if (!silent) {
+      if (max >= pos + 1 && state.src.charCodeAt(pos + 1) === 0x5c) {
+        if (max >= pos + 2 && state.src.charCodeAt(pos + 2) === 0x0a) {
+          state.pending = state.pending.replace(/\\\\$/, "");
+          state.push("hardbreak", "br", 0);
+          state.pos += 3;
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   let md = MarkdownIt({
     quotes: options.quotes,
     html: options.html,
@@ -148,6 +173,8 @@ const CfMarkdown = (options = {}) => {
 
     return defaultLinkRenderer(tokens, idx, tokOptions, env, self);
   };
+
+  md.inline.ruler.before("newline", "newline_spaces", newlineSpaces);
 
   return md;
 };
