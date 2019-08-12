@@ -1,6 +1,5 @@
 import MarkdownIt from "markdown-it";
 import MarkdownItFootnote from "markdown-it-footnote";
-import MarkdownItKatex from "markdown-it-katex";
 import MarkdownItDeflist from "markdown-it-deflist";
 
 import { repeatStr } from "./utils";
@@ -94,7 +93,6 @@ const CfMarkdown = (options = {}) => {
     highlight: highlight
   })
     .use(MarkdownItFootnote)
-    .use(MarkdownItKatex)
     .use(MarkdownItSignature)
     .use(MarkdownItIals)
     .use(MarkdownItCfEnhancements)
