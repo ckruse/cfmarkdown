@@ -14,6 +14,8 @@
   "author": "Christian Kruse <christian@kruse.cool>",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
     "markdown-it": "^8.4.2",
     "markdown-it-deflist": "^2.0.3",
     "markdown-it-footnote": "^3.0.2",
