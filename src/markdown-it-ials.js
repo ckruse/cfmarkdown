@@ -1,6 +1,6 @@
 import { scan, trimStart, trim, addClass } from "./utils";
 
-const IAL_RX = /(?:^|\s+)(?:(\.\w[\w-]*)|(#\w[\w-]*)|(@\w+)|(\w[\w-]+)=((\w[\w-]*)|((["'])[^\8]+\8)))/g;
+const IAL_RX = /(?:^|\s+)(?:(\.\w[\w.-]*)|(#\w[\w-]*)|(@\w+)|(\w[\w-]+)=((\w[\w-]*)|((["'])[^\8]+\8)))/g;
 
 const parseIal = str => {
   const matchData = scan(str, IAL_RX);
@@ -9,7 +9,8 @@ const parseIal = str => {
     let [klass, id, lang, key, value] = elem;
 
     if (klass) {
-      opts.class = trimStart((opts.class || "") + ` ${klass.substr(1)}`);
+      const classes = trim(klass.replace(/\./g, " "));
+      opts.class = trimStart((opts.class || "") + ` ${classes}`);
     } else if (id) {
       opts.id = id.substr(1);
     } else if (lang) {

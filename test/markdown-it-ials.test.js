@@ -23,6 +23,13 @@ describe("markdown-it-ials", () => {
     );
   });
 
+  it("renders an IAL with multiple classes w/o space", () => {
+    assert.equal(
+      md.render("*abcd*{:.foo.bar}"),
+      '<p><em class="foo bar">abcd</em></p>\n'
+    );
+  });
+
   it("renders an block IAL with a class correctly", () => {
     assert.equal(md.render("# abcd\n{:.foo}"), '<h1 class="foo">abcd</h1>\n');
   });
