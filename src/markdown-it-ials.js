@@ -15,8 +15,6 @@ const parseIal = str => {
       opts.id = id.substr(1);
     } else if (lang) {
       opts.lang = lang.substr(1);
-    } else {
-      opts[key] = value.replace(/^(["'])|\1$/, "");
     }
 
     return opts;

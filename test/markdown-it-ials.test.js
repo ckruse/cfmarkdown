@@ -78,4 +78,16 @@ describe("markdown-it-ials", () => {
       '<p><code class="language-html">&amp;copy</code> - <code class="language-html">&amp;copy;</code></p>\n'
     );
   });
+
+  it("ignores everything but id and class", () => {
+    assert.equal(
+      md.render('*foo*{: style="color:limegreen;"}'),
+      "<p><em>foo</em></p>\n"
+    );
+
+    assert.equal(
+      md.render('*foo*{: onclick="alert"}'),
+      "<p><em>foo</em></p>\n"
+    );
+  });
 });
