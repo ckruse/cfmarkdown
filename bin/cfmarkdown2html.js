@@ -50,3 +50,5 @@ rl.on("line", line => {
     );
   }
 });
+
+process.stdout.write("ok\n");
