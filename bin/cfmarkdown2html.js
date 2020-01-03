@@ -6,12 +6,6 @@ import readline from "readline";
 process.stdin.resume();
 process.stdin.setEncoding("utf8");
 
-const mdPlain = CfMarkdown({
-  quotes: "„“‚‘",
-  headerStartIndex: 3,
-  target: "plain"
-});
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -23,15 +17,15 @@ rl.on("line", line => {
     let json = JSON.parse(line);
     const target = json.target || "markdown";
     const md = CfMarkdown({
-      ...(json.config || {}),
       quotes: "„“‚‘",
-      headerStartIndex: 3
+      headerStartIndex: 3,
+      ...(json.config || {}),
+      target: json.target == "plain" ? "plain" : "html"
     });
 
     process.title = "cfmarkdown: parsing " + json.id + " to " + target;
     const markdown = CfMarkdown.manualFixes(json.markdown);
-    const result =
-      json.target == "plain" ? mdPlain.render(markdown) : md.render(markdown);
+    const result = md.render(markdown);
 
     process.stdout.write(
       JSON.stringify({

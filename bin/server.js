@@ -8,9 +8,10 @@ const port = process.env.PORT || 4001;
 
 function markdown(request, response) {
   const md = CfMarkdown({
-    ...(request.body.config || {}),
     quotes: "„“‚‘",
-    headerStartIndex: 3
+    headerStartIndex: 3,
+    ...(request.body.config || {}),
+    target: "html"
   });
 
   const markdown = CfMarkdown.manualFixes(request.body.markdown);
@@ -25,6 +26,7 @@ function plain(request, response) {
   const md = CfMarkdown({
     quotes: "„“‚‘",
     headerStartIndex: 3,
+    ...(request.body.config || {}),
     target: "plain"
   });
 
