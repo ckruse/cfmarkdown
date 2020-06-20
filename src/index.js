@@ -4,20 +4,11 @@ import MarkdownItDeflist from "markdown-it-deflist";
 
 import { repeatStr } from "./utils";
 
-import Prism from "prismjs";
-let loadLanguages;
-
-if (typeof window == "undefined") {
-  loadLanguages = require("prismjs/components/");
-}
-
 import MarkdownItSignature from "./markdown-it-signature";
 import MarkdownItIals from "./markdown-it-ials";
 import MarkdownItCfEnhancements from "./markdown-it-cf-enhancements";
 
 import PlainTextRenderer from "./plain_text_rules";
-
-import { escapeHtml } from "markdown-it/lib/common/utils";
 
 const defaultOptions = {
   html: false,
@@ -26,12 +17,12 @@ const defaultOptions = {
   languageAliases: {
     html: "markup",
     "c++": "cpp",
-    js: "javascript"
+    js: "javascript",
   },
   target: "html",
   linkTarget: null,
   followWhitelist: null,
-  base: "http://localhost/"
+  base: "http://localhost/",
 };
 
 const CfMarkdown = (options = {}) => {
@@ -42,23 +33,6 @@ const CfMarkdown = (options = {}) => {
   } else {
     options.followWhitelist = null;
   }
-
-  const highlight = function(str, lang) {
-    lang = lang.toLowerCase().replace(/,$/, "");
-
-    if (lang) {
-      lang = options.languageAliases[lang] || lang;
-      if (typeof window == "undefined") {
-        loadLanguages([lang]);
-      }
-
-      if (Prism.languages[lang]) {
-        return Prism.highlight(str, Prism.languages[lang], lang);
-      }
-    }
-
-    return escapeHtml(str);
-  };
 
   const newlineSpaces = (state, silent) => {
     var max,
@@ -90,7 +64,6 @@ const CfMarkdown = (options = {}) => {
     html: options.html,
     typographer: false,
     linkify: false,
-    highlight: highlight
   })
     .use(MarkdownItFootnote)
     .use(MarkdownItSignature)
@@ -124,26 +97,13 @@ const CfMarkdown = (options = {}) => {
 
       return `</h${level}>`;
     };
-
-    md.renderer.rules.code_inline = (tokens, idx, options, env, slf) => {
-      var token = tokens[idx];
-      const klass = token.attrGet("class") || "";
-      const tag = "<code" + slf.renderAttrs(token) + ">";
-
-      if (klass.match(/language-(\w+)/)) {
-        const lang = RegExp.$1;
-        return tag + highlight(tokens[idx].content, lang) + "</code>";
-      } else {
-        return tag + escapeHtml(tokens[idx].content) + "</code>";
-      }
-    };
   } else if (options.target == "plain") {
     md.renderer = new PlainTextRenderer();
   }
 
   const defaultLinkRenderer =
     md.renderer.rules.link_open ||
-    function(tokens, idx, options, env, self) {
+    function (tokens, idx, options, env, self) {
       return self.renderToken(tokens, idx, options);
     };
 
@@ -179,12 +139,12 @@ const CfMarkdown = (options = {}) => {
   return md;
 };
 
-CfMarkdown.manualFixes = text => {
+CfMarkdown.manualFixes = (text) => {
   let ncnt = "";
   let quote_level = 0;
   let lines = text.split(/\r\n|\n|\r/);
 
-  lines.forEach(l => {
+  lines.forEach((l) => {
     let mdata = l.match(/^(> *)+/);
     let currentQl = ((mdata ? mdata[0] : "").match(/>/) || []).length;
 
