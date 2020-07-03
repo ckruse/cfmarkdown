@@ -150,7 +150,6 @@ const CfMarkdown = (options = {}) => {
 
     if (options.linkTarget) {
       token.attrSet("target", options.linkTarget);
-      rel.push("noopener");
     }
 
     if (options.followWhitelist) {
@@ -164,9 +163,8 @@ const CfMarkdown = (options = {}) => {
       rel.push("nofollow");
     }
 
-    if (rel.length > 0) {
-      token.attrSet("rel", rel.join(" "));
-    }
+    rel.push("noopener noreferrer");
+    token.attrSet("rel", rel.join(" "));
 
     return defaultLinkRenderer(tokens, idx, tokOptions, env, self);
   };
