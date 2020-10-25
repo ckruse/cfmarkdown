@@ -13,9 +13,6 @@ import MarkdownItCfEnhancements from "./markdown-it-cf-enhancements";
 
 import PlainTextRenderer from "./plain_text_rules";
 
-const loadLanguages =
-  typeof window == "undefined" ? require("prismjs/components/") : undefined;
-
 const defaultOptions = {
   html: false,
   headerStartIndex: 1,
@@ -29,6 +26,7 @@ const defaultOptions = {
   linkTarget: null,
   followWhitelist: null,
   base: "http://localhost/",
+  loadLanguages: null,
 };
 
 const CfMarkdown = (options = {}) => {
@@ -45,8 +43,8 @@ const CfMarkdown = (options = {}) => {
 
     if (lang) {
       lang = options.languageAliases[lang] || lang;
-      if (typeof window == "undefined") {
-        loadLanguages([lang]);
+      if (options.loadLanguages) {
+        options.loadLanguages([lang]);
       }
 
       if (Prism.languages[lang]) {
