@@ -25,13 +25,13 @@
     "shell-quote": "^1.7.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.3",
+    "@babel/core": "^7.12.9",
     "@babel/node": "^7.12.6",
-    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
     "@babel/register": "^7.12.1",
-    "babel-loader": "^8.2.1",
+    "babel-loader": "^8.2.2",
     "mocha": "^8.2.1",
-    "webpack": "^5.4.0",
+    "webpack": "^5.9.0",
     "webpack-cli": "^4.2.0"
   }
 }
