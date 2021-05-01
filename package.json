@@ -17,7 +17,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "markdown-it": "^12.0.4",
+    "markdown-it": "^12.0.6",
     "markdown-it-deflist": "^2.1.0",
     "markdown-it-footnote": "^3.0.2",
     "prismjs": "^1.23.0",
