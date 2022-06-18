@@ -167,6 +167,18 @@ const CfMarkdown = (options = {}) => {
     return defaultLinkRenderer(tokens, idx, tokOptions, env, self);
   };
 
+  const defaultImageRenderer =
+    md.renderer.rules.image ||
+    function (tokens, idx, options, env, self) {
+      return self.renderToken(tokens, idx, options);
+    };
+
+  md.renderer.rules.image = (tokens, idx, options, env, slf) => {
+    const token = tokens[idx];
+    token.attrSet("loading", "lazy");
+    return defaultImageRenderer(tokens, idx, options, env, slf);
+  };
+
   md.inline.ruler.before("newline", "newline_spaces", newlineSpaces);
 
   return md;
